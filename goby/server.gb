@@ -1,0 +1,15 @@
+require "net/simple_server"
+
+s = Net::SimpleServer.new("3000")
+
+s.get("/") do |req, res|
+  res.body = "Hello world!"
+  res.status = 200
+end
+
+s.get("/not_found") do |req, res|
+  res.body = "Not Found"
+  res.status = 404
+end
+
+s.start
