@@ -1,0 +1,21 @@
+version: "3.7"
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: ["sh", "-c", "go run ."]
+    depends_on: [postgres]
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres/postgres?sslmode=disable
+  postgres:
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+volumes:
+  postgres-data:
