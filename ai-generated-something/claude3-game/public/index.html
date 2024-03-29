@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>シンプル・サバイバー</title>
+  <style>
+    body {
+      background-color: black;
+      color: white;
+      font-family: monospace;
+      text-align: center;
+    }
+    #game {
+      position: relative;
+      width: 400px;
+      height: 400px;
+      margin: 0 auto;
+      background-color: #222;
+      border: 1px solid white;
+    }
+    #player {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: blue;
+    }
+    .enemy {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background-color: red;
+    }
+  </style>
+</head>
+<body>
+  <h1>シンプル・サバイバー</h1>
+  <div id="game"></div>
+  <p>矢印キーで移動、敵に当たらないように生き残れ！</p>
+  <p>生存時間: <span id="score">0</span> 秒</p>
+
+  <script>
+    const game = document.getElementById('game');
+    const player = document.createElement('div');
+    player.id = 'player';
+    game.appendChild(player);
+
+    let playerX = 190;
+    let playerY = 190;
+    let score = 0;
+    let gameLoop;
+
+    function movePlayer(e) {
+      switch (e.key) {
+        case 'ArrowUp':
+          playerY = Math.max(0, playerY - 10);
+          break;
+        case 'ArrowDown':
+          playerY = Math.min(380, playerY + 10);
+          break;
+        case 'ArrowLeft':
+          playerX = Math.max(0, playerX - 10);
+          break;
+        case 'ArrowRight':
+          playerX = Math.min(380, playerX + 10);
+          break;
+      }
+      player.style.top = playerY + 'px';
+      player.style.left = playerX + 'px';
+    }
+
+    function spawnEnemy() {
+      const enemy = document.createElement('div');
+      enemy.className = 'enemy';
+      enemy.style.top = Math.random() * 380 + 'px';
+      enemy.style.left = Math.random() * 380 + 'px';
+      game.appendChild(enemy);
+    }
+
+    function checkCollision() {
+      const enemies = document.getElementsByClassName('enemy');
+      for (let i = 0; i < enemies.length; i++) {
+        const enemy = enemies[i];
+        const enemyX = parseInt(enemy.style.left);
+        const enemyY = parseInt(enemy.style.top);
+        if (Math.abs(playerX - enemyX) < 20 && Math.abs(playerY - enemyY) < 20) {
+          clearInterval(gameLoop);
+          alert('ゲームオーバー！生存時間: ' + score + '秒');
+        }
+      }
+    }
+
+    function updateScore() {
+      score++;
+      document.getElementById('score').textContent = score;
+    }
+
+    document.addEventListener('keydown', movePlayer);
+    gameLoop = setInterval(() => {
+      spawnEnemy();
+      checkCollision();
+      updateScore();
+    }, 1000);
+  </script>
+</body>
+</html>
