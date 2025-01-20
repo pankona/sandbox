@@ -1,48 +1,53 @@
-name: Deploy Game to GitHub Pages
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
 
 on:
+  # Runs on pushes targeting the default branch
   push:
-    branches: [ master ]
+    branches: ["master"]
     paths:
       - 'ai-generated-something/roo-cline/vampire-survivors-like/**'
-      - '.github/workflows/deploy-game.yml'
-  workflow_dispatch:  # 手動実行も可能にする
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
 
 jobs:
-  build-and-deploy:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Setup Go environment
+        uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-          check-latest: true
-
-      - name: Build WASM
+      - name: Build main.wasm
         run: |
           cd ai-generated-something/roo-cline/vampire-survivors-like
-          GOOS=js GOARCH=wasm go build -o public/main.wasm
-          # Find and copy wasm_exec.js
-          GOROOT=$(go env GOROOT)
-          echo "Looking for wasm_exec.js in ${GOROOT}"
-          if [ -f "${GOROOT}/misc/wasm/wasm_exec.js" ]; then
-            cp "${GOROOT}/misc/wasm/wasm_exec.js" public/
-          else
-            # Try alternative path for newer Go versions
-            find "${GOROOT}" -name wasm_exec.js -type f -exec cp {} public/ \;
-          fi
-          # Verify the file was copied
-          if [ ! -f public/wasm_exec.js ]; then
-            echo "Failed to find wasm_exec.js"
-            exit 1
-          fi
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
+          make wasm
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./ai-generated-something/roo-cline/vampire-survivors-like/public
-          destination_dir: vampire-survivors-like
-          cname: sandbox.pankona.github.io
+          # Upload game directory
+          path: './ai-generated-something/roo-cline/vampire-survivors-like/public'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@e7f94b3c3e981332b5b8dd20706496ba9a8016c1
