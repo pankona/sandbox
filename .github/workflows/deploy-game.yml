@@ -43,7 +43,14 @@ jobs:
       - name: Build main.wasm
         run: |
           cd ai-generated-something/roo-cline/vampire-survivors-like
-          make wasm
+          pwd
+          ls -la
+          echo "Building WASM..."
+          GOOS=js GOARCH=wasm go build -v -o public/main.wasm
+          echo "Copying wasm_exec.js..."
+          cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" public/
+          echo "Checking build results..."
+          ls -la public/
       - name: Check directory content
         run: |
           ls -la ai-generated-something/roo-cline/vampire-survivors-like/public/
