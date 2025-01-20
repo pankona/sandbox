@@ -21,7 +21,11 @@ jobs:
         run: |
           cd ai-generated-something/roo-cline/vampire-survivors-like
           GOOS=js GOARCH=wasm go build -o public/main.wasm
-          cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" public/
+          cp $(go env GOROOT)/misc/wasm/wasm_exec.js public/
+          # バックアップとして直接パスも試す
+          if [ ! -f public/wasm_exec.js ]; then
+            cp /opt/hostedtoolcache/go/1.21.13/x64/misc/wasm/wasm_exec.js public/
+          fi
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
