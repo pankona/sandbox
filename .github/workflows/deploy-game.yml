@@ -43,11 +43,15 @@ jobs:
         run: |
           cd ai-generated-something/roo-cline/vampire-survivors-like
           make wasm
+      - name: Check directory content
+        run: |
+          ls -la ai-generated-something/roo-cline/vampire-survivors-like/public/
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload game directory
-          path: './ai-generated-something/roo-cline/vampire-survivors-like/public'
+          name: github-pages
+          path: ai-generated-something/roo-cline/vampire-survivors-like/public
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v1
