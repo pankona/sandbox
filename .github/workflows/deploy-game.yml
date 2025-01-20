@@ -50,4 +50,4 @@ jobs:
           path: './ai-generated-something/roo-cline/vampire-survivors-like/public'
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@e7f94b3c3e981332b5b8dd20706496ba9a8016c1
+        uses: actions/deploy-pages@v1
