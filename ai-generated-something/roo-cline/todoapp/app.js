@@ -63,16 +63,18 @@ class TodoApp {
                     <label for="editTaskSize">タスクサイズ</label>
                     <select id="editTaskSize">
                         <option value="">未設定</option>
-                        <option value="small" ${task.size === 'small' ? 'selected' : ''}>小さい（一瞬で終わる）</option>
-                        <option value="large" ${task.size === 'large' ? 'selected' : ''}>大きい（時間がかかる）</option>
+                        <option value="small" ${task.size === 'small' ? 'selected' : ''}>小（30分以内）</option>
+                        <option value="medium" ${task.size === 'medium' ? 'selected' : ''}>中（2時間以内）</option>
+                        <option value="large" ${task.size === 'large' ? 'selected' : ''}>大（半日以上）</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="editTaskImportance">重要度</label>
                     <select id="editTaskImportance">
                         <option value="">未設定</option>
-                        <option value="high" ${task.importance === 'high' ? 'selected' : ''}>重要</option>
-                        <option value="low" ${task.importance === 'low' ? 'selected' : ''}>サイドクエスト</option>
+                        <option value="low" ${task.importance === 'low' ? 'selected' : ''}>低（後回しOK）</option>
+                        <option value="medium" ${task.importance === 'medium' ? 'selected' : ''}>中（普通）</option>
+                        <option value="high" ${task.importance === 'high' ? 'selected' : ''}>高（優先）</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -181,8 +183,12 @@ class TodoApp {
                 <div class="task-content">
                     <h3 onclick="app.editTask('${task.id}')" style="cursor: pointer;">${task.title}</h3>
                     <div class="task-meta">
-                        ${task.size ? `<p>📏 ${task.size === 'small' ? '小' : '大'}</p>` : ''}
-                        ${task.importance ? `<p>🎯 ${task.importance === 'high' ? '高' : '低'}</p>` : ''}
+                        ${task.size ? `<p>📏 ${task.size === 'small' ? '小' :
+                task.size === 'medium' ? '中' : '大'
+                }</p>` : ''}
+                        ${task.importance ? `<p>🎯 ${task.importance === 'low' ? '低' :
+                task.importance === 'medium' ? '中' : '高'
+                }</p>` : ''}
                         ${task.dueDate ? `<p>📅 ${new Date(task.dueDate).toLocaleDateString()}</p>` : ''}
                         <div class="task-actions">
                             ${taskActions}
@@ -213,8 +219,12 @@ class TodoApp {
                     <h3 onclick="app.editTask('${task.id}')" style="cursor: pointer;">${task.title}</h3>
                     <div class="task-meta">
                         <p>✅ ${new Date(task.completedDate).toLocaleDateString()}</p>
-                        ${task.size ? `<p>📏 ${task.size === 'small' ? '小' : '大'}</p>` : ''}
-                        ${task.importance ? `<p>🎯 ${task.importance === 'high' ? '高' : '低'}</p>` : ''}
+                        ${task.size ? `<p>📏 ${task.size === 'small' ? '小' :
+                task.size === 'medium' ? '中' : '大'
+                }</p>` : ''}
+                        ${task.importance ? `<p>🎯 ${task.importance === 'low' ? '低' :
+                    task.importance === 'medium' ? '中' : '高'
+                }</p>` : ''}
                         ${task.dueDate ? `<p>📅 ${new Date(task.dueDate).toLocaleDateString()}</p>` : ''}
                         <div class="task-actions">
                             <button onclick="app.reopenTask('${task.id}')" class="icon-button" data-tooltip="進行中に戻す">🔄</button>
