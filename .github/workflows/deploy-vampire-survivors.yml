@@ -38,7 +38,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v4
         with:
-          go-version: 'latest'
+          go-version: 'stable'
 
       - name: Build WASM
         working-directory: ai-generated-something/roo-cline/vampire-survivors-like
