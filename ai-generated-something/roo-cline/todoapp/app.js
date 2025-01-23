@@ -201,7 +201,15 @@ class TodoApp {
 
     isLeafTask(taskId) {
         const task = this.tasks.find(t => t.id === taskId);
-        return task && task.childIds.length === 0;
+        if (!task) return false;
+        
+        // 完了していない子タスクの数をチェック
+        const nonCompletedChildCount = task.childIds
+            .map(childId => this.tasks.find(t => t.id === childId))
+            .filter(child => child && child.status !== 'completed')
+            .length;
+        
+        return nonCompletedChildCount === 0;
     }
 
     startTask(taskId) {
@@ -279,7 +287,11 @@ class TodoApp {
             while (currentParent) {
                 // 他に進行中の子タスクがあるかチェック
                 const hasOtherInProgressChild = this.hasInProgressDescendant(currentParent.id, taskId);
-                if (!hasOtherInProgressChild) {
+                if (hasOtherInProgressChild) {
+                    // 進行中の子タスクがある場合は親タスクを has_in_progress_child 状態に
+                    currentParent.status = 'has_in_progress_child';
+                } else if (currentParent.status === 'has_in_progress_child') {
+                    // 進行中の子タスクがなく、かつ現在が子タスク進行中状態なら、backlogに戻す
                     currentParent.status = 'backlog';
                 }
                 currentParent = this.tasks.find(t => t.id === currentParent.parentId);
@@ -378,7 +390,7 @@ class TodoApp {
         const taskActions = this.createTaskActions(task);
         const childTasks = task.childIds
             .map(childId => this.tasks.find(t => t.id === childId))
-            .filter(Boolean);
+            .filter(t => t && t.status !== 'completed');
 
         const statusBadge = task.status === 'has_in_progress_child'
             ? '<span class="status-badge">👉 子タスク進行中</span>'
@@ -391,7 +403,8 @@ class TodoApp {
                </button>`
             : '';
 
-        const taskHtml = `
+        // 完了していないタスクのみを表示
+        const taskHtml = task.status !== 'completed' ? `
             <div class="task-item" data-id="${task.id}" style="margin-left: ${depth * 20}px;">
                 <div class="task-content">
                     <h3>
@@ -416,8 +429,8 @@ class TodoApp {
                     </div>
                 </div>
             </div>
-            ${!task.isCollapsed ? childTasks.map(childTask => this.createTaskHTML(childTask, depth + 1)).join('') : ''}
-        `;
+            ${!task.isCollapsed ? childTasks.filter(child => child.status !== 'completed').map(childTask => this.createTaskHTML(childTask, depth + 1)).join('') : ''}
+        ` : '';
 
         return taskHtml;
     }
@@ -425,14 +438,11 @@ class TodoApp {
     createTaskActions(task) {
         if (task.status === 'backlog') {
             // 末端タスクの場合のみ開始ボタンを表示
-            return this.isLeafTask(task.id) 
+            return this.isLeafTask(task.id)
                 ? `<button onclick="app.startTask('${task.id}')" class="icon-button" data-tooltip="開始">▶️</button>`
                 : '';
         } else if (task.status === 'in_progress') {
-            return `
-                <button onclick="app.revertTask('${task.id}')" class="icon-button" data-tooltip="Backlogに戻す">⏪</button>
-                <button onclick="app.showCompleteDialog('${task.id}')" class="icon-button" data-tooltip="完了">✅</button>
-            `;
+            return `<button onclick="app.revertTask('${task.id}')" class="icon-button" data-tooltip="Backlogに戻す">⏪</button><button onclick="app.showCompleteDialog('${task.id}')" class="icon-button" data-tooltip="完了">✅</button>`;
         }
         return '';
     }
