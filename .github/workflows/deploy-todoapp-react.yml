@@ -21,7 +21,7 @@ permissions:
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
-  group: "pages"
+  group: "pages-todoapp-react"
   cancel-in-progress: true
 
 jobs:
@@ -52,6 +52,14 @@ jobs:
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
+      - name: Download existing pages artifact
+        id: download
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: github-pages
+          path: _site
 
       - name: Prepare deployment directory
         run: |
