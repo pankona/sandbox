@@ -1,5 +1,5 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy Vampire Survivors Like Game to Pages
+name: Deploy Vampire Survivors Like to Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -34,23 +34,20 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 'latest'
+
+      - name: Build WASM
+        working-directory: ai-generated-something/roo-cline/vampire-survivors-like
+        run: |
+          GOOS=js GOARCH=wasm go build -o public/main.wasm
+          cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" public/
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Setup Go environment
-        uses: actions/setup-go@v5
-        with:
-          go-version: 'stable'
-      - name: Build main.wasm
-        run: |
-          cd ai-generated-something/roo-cline/vampire-survivors-like
-          pwd
-          ls -la
-          echo "Building WASM..."
-          GOOS=js GOARCH=wasm go build -v -o public/main.wasm
-          echo "Copying wasm_exec.js..."
-          cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" public/
-          echo "Checking build results..."
-          ls -la public/
 
       - name: Prepare deployment directory
         run: |
@@ -64,6 +61,7 @@ jobs:
         with:
           name: vampire-survivors-pages
           path: _site
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

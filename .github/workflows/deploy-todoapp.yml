@@ -34,12 +34,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Prepare deployment directory
         run: |
           mkdir -p _site/todoapp
-          cp -r ai-generated-something/roo-cline/todoapp/* _site/todoapp/
+          cp ai-generated-something/roo-cline/todoapp/index.html _site/todoapp/
+          cp ai-generated-something/roo-cline/todoapp/app.js _site/todoapp/
           echo "Deployment directory content:"
           ls -la _site/todoapp/
 
@@ -48,6 +51,7 @@ jobs:
         with:
           name: todoapp-pages
           path: _site
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
