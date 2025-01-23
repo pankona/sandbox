@@ -1,5 +1,5 @@
 # Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+name: Deploy Vampire Survivors Like Game to Pages
 
 on:
   # Runs on pushes targeting the default branch
@@ -7,7 +7,7 @@ on:
     branches: ["master"]
     paths:
       - 'ai-generated-something/roo-cline/vampire-survivors-like/**'
-      - '.github/workflows/deploy-game.yml'
+      - '.github/workflows/deploy-vampire-survivors.yml'
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -51,17 +51,21 @@ jobs:
           cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" public/
           echo "Checking build results..."
           ls -la public/
-      - name: Check directory content
+
+      - name: Prepare deployment directory
         run: |
-          ls -la ai-generated-something/roo-cline/vampire-survivors-like/public/
+          mkdir -p _site/vampire-survivors-like
+          cp -r ai-generated-something/roo-cline/vampire-survivors-like/public/* _site/vampire-survivors-like/
+          echo "Deployment directory content:"
+          ls -la _site/vampire-survivors-like/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          name: github-pages
-          path: ai-generated-something/roo-cline/vampire-survivors-like/public
+          name: vampire-survivors-pages
+          path: _site
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          artifact_name: github-pages
+          artifact_name: vampire-survivors-pages
