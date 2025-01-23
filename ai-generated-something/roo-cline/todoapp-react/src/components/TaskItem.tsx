@@ -8,7 +8,7 @@ interface TaskItemProps {
     onToggleCollapse: (taskId: string) => void;
     onAddChild: (taskId: string) => void;
     onDelete: (taskId: string) => void;
-    onStatusChange: (taskId: string, newStatus: 'backlog' | 'in_progress' | 'completed') => void;
+    onStatusChange: (taskId: string, newStatus: 'backlog' | 'in_progress' | 'completed', achievement?: string) => void;
     isLeafTask: (taskId: string) => boolean;
     children?: React.ReactNode;
 }
@@ -32,7 +32,7 @@ export const TaskItem: React.FC<TaskItemProps> = ({
 
     const handleComplete = () => {
         const achievement = window.prompt('実績を入力してください（任意）:');
-        onStatusChange(task.id, 'completed');
+        onStatusChange(task.id, 'completed', achievement || undefined);
     };
 
     const renderTaskActions = () => {

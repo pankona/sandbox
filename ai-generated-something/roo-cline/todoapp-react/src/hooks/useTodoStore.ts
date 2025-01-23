@@ -165,7 +165,7 @@ export const useTodoStore = () => {
 
             // 親タスクの状態を更新
             if (task.parentId) {
-                let currentParentId = task.parentId;
+                let currentParentId: string | null = task.parentId;
                 while (currentParentId) {
                     const parentIndex = newTasks.findIndex(t => t.id === currentParentId);
                     if (parentIndex === -1) break;
