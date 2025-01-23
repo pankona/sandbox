@@ -11,6 +11,7 @@ class Task {
         this.achievement = '';
         this.parentId = null;
         this.childIds = [];
+        this.isCollapsed = false; // 折りたたみ状態を追加
     }
 }
 
@@ -28,10 +29,20 @@ class TodoApp {
                 ...task,
                 status: task.status || 'backlog',
                 parentId: task.parentId || null,
-                childIds: task.childIds || []
+                childIds: task.childIds || [],
+                isCollapsed: task.isCollapsed || false
             }));
         }
         this.renderTasks();
+    }
+
+    toggleCollapse(taskId) {
+        const task = this.tasks.find(t => t.id === taskId);
+        if (task) {
+            task.isCollapsed = !task.isCollapsed;
+            this.saveTasks();
+            this.renderTasks();
+        }
     }
 
     saveTasks() {
@@ -369,15 +380,25 @@ class TodoApp {
             .map(childId => this.tasks.find(t => t.id === childId))
             .filter(Boolean);
 
-        const statusBadge = task.status === 'has_in_progress_child' 
-            ? '<span class="status-badge">👉 子タスク進行中</span>' 
+        const statusBadge = task.status === 'has_in_progress_child'
+            ? '<span class="status-badge">👉 子タスク進行中</span>'
+            : '';
+
+        // 折りたたみボタンを追加（子タスクがある場合のみ）
+        const collapseButton = childTasks.length > 0
+            ? `<button onclick="event.stopPropagation(); app.toggleCollapse('${task.id}')" class="icon-button" data-tooltip="${task.isCollapsed ? '展開' : '折りたたむ'}">
+                ${task.isCollapsed ? '📂' : '📁'}
+               </button>`
             : '';
 
         const taskHtml = `
             <div class="task-item" data-id="${task.id}" style="margin-left: ${depth * 20}px;">
                 <div class="task-content">
-                    <h3 onclick="app.editTask('${task.id}')" style="cursor: pointer;">
-                        ${task.title} ${statusBadge}
+                    <h3>
+                        ${collapseButton}
+                        <span onclick="app.editTask('${task.id}')" style="cursor: pointer;">
+                            ${task.title} ${statusBadge}
+                        </span>
                     </h3>
                     <div class="task-meta">
                         ${task.size ? `<p>📏 ${task.size === 'small' ? '小' :
@@ -395,7 +416,7 @@ class TodoApp {
                     </div>
                 </div>
             </div>
-            ${childTasks.map(childTask => this.createTaskHTML(childTask, depth + 1)).join('')}
+            ${!task.isCollapsed ? childTasks.map(childTask => this.createTaskHTML(childTask, depth + 1)).join('') : ''}
         `;
 
         return taskHtml;
@@ -421,10 +442,22 @@ class TodoApp {
             .map(childId => this.tasks.find(t => t.id === childId))
             .filter(t => t && t.status === 'completed');
 
+        // 折りたたみボタンを追加（完了した子タスクがある場合のみ）
+        const collapseButton = childTasks.length > 0
+            ? `<button onclick="event.stopPropagation(); app.toggleCollapse('${task.id}')" class="icon-button" data-tooltip="${task.isCollapsed ? '展開' : '折りたたむ'}">
+                ${task.isCollapsed ? '📂' : '📁'}
+               </button>`
+            : '';
+
         const taskHtml = `
             <div class="task-item completed" style="margin-left: ${depth * 20}px;">
                 <div class="task-content">
-                    <h3 onclick="app.editTask('${task.id}')" style="cursor: pointer;">${task.title}</h3>
+                    <h3>
+                        ${collapseButton}
+                        <span onclick="app.editTask('${task.id}')" style="cursor: pointer;">
+                            ${task.title}
+                        </span>
+                    </h3>
                     <div class="task-meta">
                         <p>✅ ${new Date(task.completedDate).toLocaleDateString()}</p>
                         ${task.size ? `<p>📏 ${task.size === 'small' ? '小' :
@@ -441,7 +474,7 @@ class TodoApp {
                     </div>
                 </div>
             </div>
-            ${childTasks.map(childTask => this.createCompletedTaskHTML(childTask, depth + 1)).join('')}
+            ${!task.isCollapsed ? childTasks.map(childTask => this.createCompletedTaskHTML(childTask, depth + 1)).join('') : ''}
         `;
 
         return taskHtml;
